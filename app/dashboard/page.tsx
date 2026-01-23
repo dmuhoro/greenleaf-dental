@@ -4,10 +4,6 @@ import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
 export default function Home() {
   const [formData, setFormData] = useState({
     full_name: '',
@@ -30,6 +26,19 @@ export default function Home() {
     e.preventDefault()
     setIsSubmitting(true)
     setMessage('')
+
+    // Initialize Supabase ONLY when the form is submitted
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase configuration')
+      setMessage('❌ System configuration error. Please try again later.')
+      setIsSubmitting(false)
+      return
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
     try {
       const { error } = await supabase
@@ -63,7 +72,10 @@ export default function Home() {
   }
 
   const scrollToBooking = () => {
-    document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
+    const element = document.getElementById('booking')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   return (
@@ -219,7 +231,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="John Doe"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900"
                 />
               </div>
 
@@ -234,7 +246,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="+254 712 345 678"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900"
                 />
               </div>
 
@@ -249,7 +261,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="john@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900"
                 />
               </div>
 
@@ -262,7 +274,7 @@ export default function Home() {
                   value={formData.service}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white"
                 >
                   <option>General Checkup</option>
                   <option>Teeth Cleaning</option>
@@ -284,7 +296,7 @@ export default function Home() {
                   value={formData.preferred_date}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900"
                 />
               </div>
 
