@@ -1,17 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
 // Force dynamic rendering to prevent build errors
 export const dynamic = 'force-dynamic'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-export default function Home() {
+export default function Dashboard() {
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -21,6 +17,21 @@ export default function Home() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+
+  // ✅ Build-safe Supabase client - only creates client in browser
+  const supabaseClient = useMemo(() => {
+    if (typeof window === 'undefined') return null // Skip during build
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('Missing Supabase env vars - check Vercel dashboard settings')
+      return null
+    }
+    
+    return createClient(supabaseUrl, supabaseKey)
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
@@ -34,8 +45,15 @@ export default function Home() {
     setIsSubmitting(true)
     setMessage('')
 
+    // ✅ Check if Supabase client is ready
+    if (!supabaseClient) {
+      setMessage('❌ Supabase not configured. Please contact support.')
+      setIsSubmitting(false)
+      return
+    }
+
     try {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('leads')
         .insert([
           {
@@ -330,7 +348,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2025 Green Leaf Dental Clinic. All rights reserved.</p>
+            <p>© 2026 Green Leaf Dental Clinic. All rights reserved.</p>
           </div>
         </div>
       </footer>
