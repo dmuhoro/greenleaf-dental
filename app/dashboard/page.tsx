@@ -7,7 +7,7 @@ import Link from 'next/link'
 // Force dynamic rendering to prevent build errors
 export const dynamic = 'force-dynamic'
 
-export default function Dashboard() {
+export default function Home() {
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -45,7 +45,6 @@ export default function Dashboard() {
     setIsSubmitting(true)
     setMessage('')
 
-    // ✅ Check if Supabase client is ready
     if (!supabaseClient) {
       setMessage('❌ Supabase not configured. Please contact support.')
       setIsSubmitting(false)
@@ -144,36 +143,12 @@ export default function Dashboard() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              {
-                title: 'Braces & Orthodontics',
-                description: 'Transform your smile with modern orthodontic solutions. Expert braces installation and monitoring.',
-                icon: '🦷'
-              },
-              {
-                title: 'General Dentistry',
-                description: 'Comprehensive dental care including checkups, fillings, and preventive treatments.',
-                icon: '✨'
-              },
-              {
-                title: 'Teeth Cleaning',
-                description: 'Professional cleaning to keep your teeth healthy and your smile bright.',
-                icon: '🪥'
-              },
-              {
-                title: 'Root Canal',
-                description: 'Expert root canal treatment to save your natural teeth and eliminate pain.',
-                icon: '🏥'
-              },
-              {
-                title: 'Teeth Whitening',
-                description: 'Professional whitening treatments for a brighter, more confident smile.',
-                icon: '💎'
-              },
-              {
-                title: 'Emergency Care',
-                description: 'Fast, professional care when you need it most. We handle dental emergencies promptly.',
-                icon: '🚨'
-              }
+              { title: 'Braces & Orthodontics', description: 'Transform your smile with modern orthodontic solutions. Expert braces installation and monitoring.', icon: '🦷' },
+              { title: 'General Dentistry', description: 'Comprehensive dental care including checkups, fillings, and preventive treatments.', icon: '✨' },
+              { title: 'Teeth Cleaning', description: 'Professional cleaning to keep your teeth healthy and your smile bright.', icon: '🪥' },
+              { title: 'Root Canal', description: 'Expert root canal treatment to save your natural teeth and eliminate pain.', icon: '🏥' },
+              { title: 'Teeth Whitening', description: 'Professional whitening treatments for a brighter, more confident smile.', icon: '💎' },
+              { title: 'Emergency Care', description: 'Fast, professional care when you need it most. We handle dental emergencies promptly.', icon: '🚨' }
             ].map((service, index) => (
               <div key={index} className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
                 <div className="text-4xl mb-4">{service.icon}</div>
@@ -240,7 +215,7 @@ export default function Dashboard() {
                   onChange={handleChange}
                   required
                   placeholder="John Doe"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -255,7 +230,7 @@ export default function Dashboard() {
                   onChange={handleChange}
                   required
                   placeholder="+254 712 345 678"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -270,7 +245,7 @@ export default function Dashboard() {
                   onChange={handleChange}
                   required
                   placeholder="john@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -283,7 +258,7 @@ export default function Dashboard() {
                   value={formData.service}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 >
                   <option>General Checkup</option>
                   <option>Teeth Cleaning</option>
@@ -305,53 +280,4 @@ export default function Dashboard() {
                   value={formData.preferred_date}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-teal-600 text-white py-4 rounded-lg font-semibold hover:bg-teal-700 transition-colors shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Submitting...' : 'Book Appointment'}
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact/Footer Section */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">Contact Us</h3>
-              <p className="text-gray-300 mb-2">📞 Phone: 0722 538 113</p>
-              <p className="text-gray-300 mb-2">📧 Email: info@greenleafdentalclinic.com</p>
-              <p className="text-gray-300">📍 Eldoret, Kenya</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Office Hours</h3>
-              <p className="text-gray-300 mb-2">Monday - Friday: 8:00 AM - 6:00 PM</p>
-              <p className="text-gray-300 mb-2">Saturday: 9:00 AM - 2:00 PM</p>
-              <p className="text-gray-300">Sunday: Closed</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-              <Link href="/dashboard" className="block text-gray-300 hover:text-white mb-2">
-                Admin Dashboard
-              </Link>
-              <button onClick={scrollToBooking} className="block text-gray-300 hover:text-white">
-                Book Appointment
-              </button>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2026 Green Leaf Dental Clinic. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  )
-}
+                  className="w-full px-4 py-3 border border-gray-300
