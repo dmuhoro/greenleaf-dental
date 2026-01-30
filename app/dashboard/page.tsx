@@ -19,7 +19,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
 
   // ✅ ADD LINES 14-22 (NEW)
-  const [supabaseClient, setSupabaseClient] = useState(null)
+  const [supabaseClient, setSupabaseClient] = useState<any>(null)
 
   useEffect(() => {
     const initSupabase = async () => {
@@ -30,7 +30,7 @@ export default function Home() {
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       
       if (supabaseUrl && supabaseKey) {
-        setSupabaseClient(createClient(supabaseUrl, supabaseKey))
+        setSupabaseClient(createClient(supabaseUrl, supabaseKey) as any)
       }
     }
     initSupabase()
