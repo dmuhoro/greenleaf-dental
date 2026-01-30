@@ -19,7 +19,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
 
   // ✅ ADD LINES 14-22 (NEW)
-  const [supabaseClient, setSupabaseClient] = useState<any>(null)
+  const [supabaseClient, setSupabaseClient] = useState(null as any)
 
   useEffect(() => {
     const initSupabase = async () => {
