@@ -24,13 +24,11 @@ export default function Home() {
   useEffect(() => {
     const initSupabase = async () => {
       if (typeof window === 'undefined') return
-      
       const { createClient } = await import('@supabase/supabase-js')
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      
       if (supabaseUrl && supabaseKey) {
-        setSupabaseClient(createClient(supabaseUrl, supabaseKey) as any)
+        setSupabaseClient(createClient(supabaseUrl, supabaseKey))
       }
     }
     initSupabase()
