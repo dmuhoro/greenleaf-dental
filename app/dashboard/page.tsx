@@ -18,20 +18,24 @@ export default function Home() {
   const [message, setMessage] = useState('')
   const [mounted, setMounted] = useState(false)
 
-  // ✅ PRODUCTION-SAFE Supabase client (fixes Vercel build crashes)
-  const supabaseClient = useMemo(() => {
-    if (typeof window === 'undefined') return null
-    
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
-    if (!supabaseUrl || !supabaseKey) {
-      console.warn('Supabase env vars missing')
-      return null
+  // ✅ ADD LINES 14-22 (NEW)
+  const [supabaseClient, setSupabaseClient] = useState(null)
+
+  useEffect(() => {
+    const initSupabase = async () => {
+      if (typeof window === 'undefined') return
+      
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      
+      if (supabaseUrl && supabaseKey) {
+        setSupabaseClient(createClient(supabaseUrl, supabaseKey))
+      }
     }
-    
-    return createClient(supabaseUrl, supabaseKey)
+    initSupabase()
   }, [])
+
 
   // ✅ Mount check prevents hydration mismatch
   useEffect(() => {
@@ -238,7 +242,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="John Doe"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -253,7 +257,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="+254 712 345 678"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -268,7 +272,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="john@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -281,7 +285,7 @@ export default function Home() {
                   value={formData.service}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 >
                   <option>General Checkup</option>
                   <option>Teeth Cleaning</option>
@@ -303,7 +307,7 @@ export default function Home() {
                   value={formData.preferred_date}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
