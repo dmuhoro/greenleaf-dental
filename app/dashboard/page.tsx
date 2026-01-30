@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link'
 
-// Force dynamic rendering to prevent build errors
+// Force dynamic rendering for client-side only
 export const dynamic = 'force-dynamic'
 
 export default function Home() {
@@ -17,20 +16,26 @@ export default function Home() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+  const [mounted, setMounted] = useState(false)
 
-  // ✅ Build-safe Supabase client - only creates client in browser
+  // ✅ PRODUCTION-SAFE Supabase client (fixes Vercel build crashes)
   const supabaseClient = useMemo(() => {
-    if (typeof window === 'undefined') return null // Skip during build
+    if (typeof window === 'undefined') return null
     
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     
     if (!supabaseUrl || !supabaseKey) {
-      console.warn('Missing Supabase env vars - check Vercel dashboard settings')
+      console.warn('Supabase env vars missing')
       return null
     }
     
     return createClient(supabaseUrl, supabaseKey)
+  }, [])
+
+  // ✅ Mount check prevents hydration mismatch
+  useEffect(() => {
+    setMounted(true)
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -46,7 +51,7 @@ export default function Home() {
     setMessage('')
 
     if (!supabaseClient) {
-      setMessage('❌ Supabase not configured. Please contact support.')
+      setMessage('❌ Supabase not configured. Contact support.')
       setIsSubmitting(false)
       return
     }
@@ -54,19 +59,11 @@ export default function Home() {
     try {
       const { error } = await supabaseClient
         .from('leads')
-        .insert([
-          {
-            full_name: formData.full_name,
-            phone: formData.phone,
-            email: formData.email,
-            service: formData.service,
-            preferred_date: formData.preferred_date
-          }
-        ])
+        .insert([formData])
 
       if (error) throw error
 
-      setMessage('✅ Appointment request submitted! We\'ll contact you within 2 hours.')
+      setMessage('✅ Appointment submitted! We\'ll contact you within 2 hours.')
       setFormData({
         full_name: '',
         phone: '',
@@ -75,8 +72,8 @@ export default function Home() {
         preferred_date: ''
       })
     } catch (error) {
-      console.error('Error:', error)
-      setMessage('❌ Something went wrong. Please try again.')
+      console.error('Submit error:', error)
+      setMessage('❌ Submission failed. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -85,6 +82,8 @@ export default function Home() {
   const scrollToBooking = () => {
     document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  if (!mounted) return null
 
   return (
     <div className="min-h-screen bg-white">
@@ -143,12 +142,36 @@ export default function Home() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { title: 'Braces & Orthodontics', description: 'Transform your smile with modern orthodontic solutions. Expert braces installation and monitoring.', icon: '🦷' },
-              { title: 'General Dentistry', description: 'Comprehensive dental care including checkups, fillings, and preventive treatments.', icon: '✨' },
-              { title: 'Teeth Cleaning', description: 'Professional cleaning to keep your teeth healthy and your smile bright.', icon: '🪥' },
-              { title: 'Root Canal', description: 'Expert root canal treatment to save your natural teeth and eliminate pain.', icon: '🏥' },
-              { title: 'Teeth Whitening', description: 'Professional whitening treatments for a brighter, more confident smile.', icon: '💎' },
-              { title: 'Emergency Care', description: 'Fast, professional care when you need it most. We handle dental emergencies promptly.', icon: '🚨' }
+              {
+                title: 'Braces & Orthodontics',
+                description: 'Transform your smile with modern orthodontic solutions. Expert braces installation and monitoring.',
+                icon: '🦷'
+              },
+              {
+                title: 'General Dentistry',
+                description: 'Comprehensive dental care including checkups, fillings, and preventive treatments.',
+                icon: '✨'
+              },
+              {
+                title: 'Teeth Cleaning',
+                description: 'Professional cleaning to keep your teeth healthy and your smile bright.',
+                icon: '🪥'
+              },
+              {
+                title: 'Root Canal',
+                description: 'Expert root canal treatment to save your natural teeth and eliminate pain.',
+                icon: '🏥'
+              },
+              {
+                title: 'Teeth Whitening',
+                description: 'Professional whitening treatments for a brighter, more confident smile.',
+                icon: '💎'
+              },
+              {
+                title: 'Emergency Care',
+                description: 'Fast, professional care when you need it most. We handle dental emergencies promptly.',
+                icon: '🚨'
+              }
             ].map((service, index) => (
               <div key={index} className="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-shadow">
                 <div className="text-4xl mb-4">{service.icon}</div>
@@ -195,8 +218,8 @@ export default function Home() {
 
             {message && (
               <div className={`mb-6 p-4 rounded-lg ${
-                message.includes('✅') 
-                  ? 'bg-green-50 text-green-800 border border-green-200' 
+                message.includes('✅')
+                  ? 'bg-green-50 text-green-800 border border-green-200'
                   : 'bg-red-50 text-red-800 border border-red-200'
               }`}>
                 {message}
@@ -215,7 +238,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="John Doe"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
                 />
               </div>
 
@@ -230,7 +253,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="+254 712 345 678"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
                 />
               </div>
 
@@ -245,7 +268,7 @@ export default function Home() {
                   onChange={handleChange}
                   required
                   placeholder="john@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
                 />
               </div>
 
@@ -258,7 +281,7 @@ export default function Home() {
                   value={formData.service}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
                 >
                   <option>General Checkup</option>
                   <option>Teeth Cleaning</option>
@@ -280,4 +303,53 @@ export default function Home() {
                   value={formData.preferred_date}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-teal-600 text-white py-4 rounded-lg font-semibold hover:bg-teal-700 transition-all shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                {isSubmitting ? 'Submitting...' : 'Book Appointment'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact/Footer Section */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4">Contact Us</h3>
+              <p className="text-gray-300 mb-2">📞 Phone: 0722 538 113</p>
+              <p className="text-gray-300 mb-2">📧 Email: info@greenleafdentalclinic.com</p>
+              <p className="text-gray-300">📍 Eldoret, Kenya</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Office Hours</h3>
+              <p className="text-gray-300 mb-2">Monday - Friday: 8:00 AM - 6:00 PM</p>
+              <p className="text-gray-300 mb-2">Saturday: 9:00 AM - 2:00 PM</p>
+              <p className="text-gray-300">Sunday: Closed</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+              <a href="/dashboard" className="block text-gray-300 hover:text-white mb-2 transition-colors">
+                Admin Dashboard
+              </a>
+              <button onClick={scrollToBooking} className="block text-gray-300 hover:text-white transition-colors">
+                Book Appointment
+              </button>
+            </div>
+          </div>
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>© 2026 Green Leaf Dental Clinic. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
